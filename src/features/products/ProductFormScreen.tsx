@@ -20,13 +20,13 @@ export default function ProductFormScreen() {
     queryFn: () => getProducts(businessId),
   });
   const editing = (products || []).find((p: any) => p.id === id);
-  const { control, handleSubmit, reset, watch } = useForm<ProductForm>({
+  const { control, handleSubmit, reset } = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
     defaultValues: editing || { name: '', price: 0, description: '', imageUrl: '' },
   });
   useEffect(() => {
     if (editing) reset(editing);
-  }, [id]);
+  }, [id, editing, reset]);
   const [image, setImage] = useState<{ uri: string; name: string; type: string } | null>(null);
 
   const createMut = useMutation({
