@@ -1,0 +1,1 @@
+Add your app icons and splash images here: icon.png, splash.png, adaptive-icon.png, favicon.png.
