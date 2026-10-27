@@ -1,23 +1,33 @@
-LocalMenu B2B (Expo + TypeScript)
+# LocalMenu B2B (Expo + TypeScript)
 
-Objetivo
+## Ecossistema LocalMenu
+
+| Repositório | Papel |
+| --- | --- |
+| [localmenu_backend](https://github.com/lucax011/localmenu_backend) | API NestJS + PostgreSQL |
+| [localmenu_frontendB2C](https://github.com/lucax011/localmenu_frontendB2C) | App do cliente (Expo) |
+| [localmenu_frontendB2B](https://github.com/lucax011/localmenu_frontendB2B) | App do restaurante (Expo) |
+| [localmenu_OCRservice](https://github.com/lucax011/localmenu_OCRservice) | Microsserviço de OCR em Python (FastAPI) |
+
+
+## Objetivo
 
 - Base funcional para comerciantes (B2B) com: login, dashboard, gestão do negócio, CRUD de produtos, fluxo OCR (upload, extração, revisão e publicação), pedidos e relatórios.
 
-Stack
+## Stack
 
 - Expo + TypeScript, React Navigation, Zustand, React Query, Axios, React Native Paper, react-hook-form + zod.
 - Testes: Jest + Testing Library; Cypress E2E em Expo Web.
 - Qualidade: ESLint/Prettier/Husky.
 - Infra local: Docker (web), Jenkinsfile (CI).
 
-Configuração
+## Configuração
 
 - Copie .env.example para .env e ajuste se necessário:
   - EXPO_PUBLIC_API_BASE_URL=http://localhost:3000
   - EXPO_PUBLIC_OCR_URL=http://localhost:8000
 
-Scripts
+## Scripts
 
 - npm start: inicia o Expo (dev)
 - npm run web: Expo Web
@@ -25,7 +35,7 @@ Scripts
 - npm test: unit tests (Jest)
 - npm run e2e: Cypress (necessita Expo Web rodando)
 
-Endpoints esperados
+## Endpoints esperados
 
 - Backend (NestJS):
   - POST /auth/login
@@ -36,7 +46,7 @@ Endpoints esperados
 - OCR (FastAPI):
   - POST /ocr/extract (multipart: file) -> { items: [{ name, price, description, confidence, bbox? }] }
 
-Arquitetura
+## Arquitetura
 
 - src/
   - api/: Axios clients (backend, ocr)
