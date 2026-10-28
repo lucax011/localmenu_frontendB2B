@@ -15,6 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createRestaurant, errorMessage, updateRestaurant } from '@/api/client';
 import { useRestaurant } from '@/hooks/data';
 import { Panel, Screen } from '@/components/ui';
+import PhotoPicker from '@/components/PhotoPicker';
 import { restaurantSchema, type RestaurantForm } from '@/utils/validators';
 import { colors } from '@/theme';
 
@@ -68,6 +69,18 @@ export default function RestaurantScreen() {
     onError: (e) => setError(errorMessage(e)),
   });
 
+  // capa e logo salvam assim que a foto sobe (não dependem do botão Salvar)
+  const savePhoto = useMutation({
+    mutationFn: (p: { coverUrl?: string | null; logoUrl?: string | null }) =>
+      updateRestaurant(restaurant!.id, p),
+    onSuccess: async () => {
+      setError(null);
+      await qc.invalidateQueries({ queryKey: ['restaurants'] });
+      setMessage('Foto salva');
+    },
+    onError: (e) => setError(errorMessage(e)),
+  });
+
   if (isLoading) return <ActivityIndicator style={{ flex: 1 }} />;
 
   return (
@@ -86,6 +99,24 @@ export default function RestaurantScreen() {
           <Text variant="titleSmall" style={{ color: colors.brandDark, fontWeight: '700' }}>
             /r/{restaurant.slug}
           </Text>
+        </Panel>
+      ) : null}
+      {restaurant ? (
+        <Panel style={{ gap: 16 }}>
+          <PhotoPicker
+            label="Capa"
+            aspectRatio={16 / 7}
+            value={restaurant.coverUrl}
+            onChange={(coverUrl) => savePhoto.mutate({ coverUrl })}
+          />
+          <View style={{ width: 140 }}>
+            <PhotoPicker
+              label="Logo"
+              aspectRatio={1}
+              value={restaurant.logoUrl}
+              onChange={(logoUrl) => savePhoto.mutate({ logoUrl })}
+            />
+          </View>
         </Panel>
       ) : null}
       <Panel style={{ gap: 4 }}>

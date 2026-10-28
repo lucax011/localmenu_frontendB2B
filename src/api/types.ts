@@ -26,6 +26,9 @@ export type Restaurant = {
   email?: string | null;
   address?: string | null;
   isActive: boolean;
+  // fotos: https://… ou /static/… (relativo à API, ver imageSrc)
+  logoUrl?: string | null;
+  coverUrl?: string | null;
 };
 
 export type MenuItem = {
@@ -35,6 +38,7 @@ export type MenuItem = {
   description?: string | null;
   price: number;
   isAvailable: boolean;
+  imageUrl?: string | null;
   order: number;
   confidence?: number | null;
 };
