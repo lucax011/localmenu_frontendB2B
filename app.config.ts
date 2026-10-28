@@ -13,7 +13,7 @@ export default ({ config }: any) => ({
   android: {
     adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#ffffff' },
   },
-  web: { bundler: 'metro', output: 'static', favicon: './assets/favicon.png' },
+  web: { bundler: 'metro', output: 'single' },
   extra: {
     apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000',
     ocrBaseUrl: process.env.EXPO_PUBLIC_OCR_URL || 'http://localhost:8000',

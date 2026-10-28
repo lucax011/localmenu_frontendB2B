@@ -1,16 +1,18 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { PaperProvider } from 'react-native-paper';
+import { IconButton, PaperProvider } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from './src/store/authStore';
+import { colors, theme } from './src/theme';
+import type { OcrUploadResult } from './src/api/types';
 import LoginScreen from './src/features/auth/LoginScreen';
 import DashboardScreen from './src/features/dashboard/DashboardScreen';
-import BusinessScreen from './src/features/business/BusinessScreen';
-import ProductsListScreen from './src/features/products/ProductsListScreen';
-import ProductFormScreen from './src/features/products/ProductFormScreen';
+import RestaurantScreen from './src/features/restaurant/RestaurantScreen';
+import MenuScreen from './src/features/menu/MenuScreen';
+import ItemFormScreen from './src/features/menu/ItemFormScreen';
 import OCRImportScreen from './src/features/ocr/OCRImportScreen';
 import OCRReviewScreen from './src/features/ocr/OCRReviewScreen';
 import OrdersScreen from './src/features/orders/OrdersScreen';
@@ -19,11 +21,11 @@ import ReportsScreen from './src/features/reports/ReportsScreen';
 export type RootStackParamList = {
   Login: undefined;
   Dashboard: undefined;
-  Business: undefined;
-  Products: undefined;
-  ProductForm: { id?: string } | undefined;
+  Restaurant: undefined;
+  Menu: undefined;
+  ItemForm: { itemId?: string; categoryId?: string };
   OCRImport: undefined;
-  OCRReview: { items: any[] };
+  OCRReview: OcrUploadResult;
   Orders: undefined;
   Reports: undefined;
 };
@@ -32,18 +34,28 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: 2,
-      staleTime: 1000 * 30,
-    },
+    queries: { retry: 1, staleTime: 1000 * 20 },
   },
 });
 
+const navTheme = {
+  ...DefaultTheme,
+  colors: { ...DefaultTheme.colors, background: colors.cream, primary: colors.brand },
+};
+
 function RootNavigator() {
-  const token = useAuthStore((s) => s.token);
+  const token = useAuthStore((s) => s.accessToken);
+  const logout = useAuthStore((s) => s.logout);
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
+    <NavigationContainer theme={navTheme} documentTitle={{ formatter: () => 'LocalMenu B2B' }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerTintColor: colors.ink,
+          headerTitleStyle: { fontWeight: '700' },
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: colors.cream },
+        }}
+      >
         {!token ? (
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         ) : (
@@ -51,39 +63,39 @@ function RootNavigator() {
             <Stack.Screen
               name="Dashboard"
               component={DashboardScreen}
-              options={{ title: 'LocalMenu B2B' }}
+              options={{
+                title: 'LocalMenu',
+                headerRight: () => (
+                  <IconButton
+                    icon="logout"
+                    accessibilityLabel="Sair"
+                    onPress={() => {
+                      queryClient.clear();
+                      logout();
+                    }}
+                  />
+                ),
+              }}
             />
             <Stack.Screen
-              name="Business"
-              component={BusinessScreen}
-              options={{ title: 'Meu Negócio' }}
+              name="Restaurant"
+              component={RestaurantScreen}
+              options={{ title: 'Meu restaurante' }}
             />
-            <Stack.Screen
-              name="Products"
-              component={ProductsListScreen}
-              options={{ title: 'Produtos' }}
-            />
-            <Stack.Screen
-              name="ProductForm"
-              component={ProductFormScreen}
-              options={{ title: 'Produto' }}
-            />
+            <Stack.Screen name="Menu" component={MenuScreen} options={{ title: 'Cardápio' }} />
+            <Stack.Screen name="ItemForm" component={ItemFormScreen} options={{ title: 'Item' }} />
             <Stack.Screen
               name="OCRImport"
               component={OCRImportScreen}
-              options={{ title: 'Importar Cardápio' }}
+              options={{ title: 'Importar por foto' }}
             />
             <Stack.Screen
               name="OCRReview"
               component={OCRReviewScreen}
-              options={{ title: 'Revisar Itens' }}
+              options={{ title: 'Revisar itens' }}
             />
             <Stack.Screen name="Orders" component={OrdersScreen} options={{ title: 'Pedidos' }} />
-            <Stack.Screen
-              name="Reports"
-              component={ReportsScreen}
-              options={{ title: 'Relatórios' }}
-            />
+            <Stack.Screen name="Reports" component={ReportsScreen} options={{ title: 'Vendas' }} />
           </>
         )}
       </Stack.Navigator>
@@ -94,9 +106,9 @@ function RootNavigator() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <PaperProvider>
+      <PaperProvider theme={theme}>
         <RootNavigator />
-        <StatusBar style="auto" />
+        <StatusBar style="dark" />
       </PaperProvider>
     </QueryClientProvider>
   );
