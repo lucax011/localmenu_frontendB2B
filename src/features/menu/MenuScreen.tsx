@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import {
   ActivityIndicator,
   Button,
@@ -16,6 +16,7 @@ import {
   createCategory,
   deleteCategory,
   errorMessage,
+  imageSrc,
   updateCategory,
   updateItem,
 } from '@/api/client';
@@ -166,6 +167,12 @@ export default function MenuScreen() {
               onPress={() => nav.navigate('ItemForm', { itemId: item.id })}
               style={styles.item}
             >
+              {item.imageUrl ? (
+                <Image
+                  source={{ uri: imageSrc(item.imageUrl) }}
+                  style={[styles.thumb, { opacity: item.isAvailable ? 1 : 0.5 }]}
+                />
+              ) : null}
               <View style={{ flex: 1, opacity: item.isAvailable ? 1 : 0.5 }}>
                 <Text variant="bodyLarge" style={{ fontWeight: '600' }}>
                   {item.name}
@@ -244,4 +251,5 @@ const styles = StyleSheet.create({
   newCat: { alignItems: 'center', flexDirection: 'row', gap: 12 },
   noItems: { color: colors.muted, paddingVertical: 8 },
   price: { color: colors.brandDark, fontWeight: '700', marginTop: 2 },
+  thumb: { borderRadius: 10, height: 56, width: 56 },
 });

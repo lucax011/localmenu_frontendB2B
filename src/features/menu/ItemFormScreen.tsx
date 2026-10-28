@@ -16,6 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createItem, deleteItem, errorMessage, updateItem } from '@/api/client';
 import { useMenu, useRestaurant } from '@/hooks/data';
 import { ConfirmDialog, Panel, Screen } from '@/components/ui';
+import PhotoPicker from '@/components/PhotoPicker';
 import { itemSchema, type ItemForm } from '@/utils/validators';
 import { parsePrice, priceText } from '@/utils/format';
 import { colors } from '@/theme';
@@ -29,6 +30,7 @@ export default function ItemFormScreen() {
   const { menu } = useMenu(restaurant?.id);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const editing = menu?.categories.flatMap((c) => c.items).find((i) => i.id === itemId);
   const {
@@ -57,6 +59,7 @@ export default function ItemFormScreen() {
         categoryId: editing.categoryId,
         isAvailable: editing.isAvailable,
       });
+      setImageUrl(editing.imageUrl ?? null);
     }
   }, [editing, itemId, nav, reset]);
 
@@ -66,7 +69,7 @@ export default function ItemFormScreen() {
   };
   const save = useMutation({
     mutationFn: (v: ItemForm) => {
-      const payload = { ...v, name: v.name.trim(), price: parsePrice(v.price) };
+      const payload = { ...v, name: v.name.trim(), price: parsePrice(v.price), imageUrl };
       return itemId ? updateItem(itemId, payload) : createItem(payload);
     },
     onSuccess: done,
@@ -98,6 +101,9 @@ export default function ItemFormScreen() {
         />
       }
     >
+      <Panel>
+        <PhotoPicker label="Foto do prato" value={imageUrl} onChange={setImageUrl} />
+      </Panel>
       <Panel style={{ gap: 4 }}>
         <Controller
           control={control}

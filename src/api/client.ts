@@ -86,6 +86,8 @@ export type RestaurantPayload = {
   description?: string;
   phone?: string;
   address?: string;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
 };
 
 export const createRestaurant = async (payload: RestaurantPayload) => {
@@ -129,6 +131,7 @@ export type ItemPayload = {
   description?: string;
   categoryId: string;
   isAvailable?: boolean;
+  imageUrl?: string | null;
 };
 
 export const createItem = async (payload: ItemPayload) => {
@@ -148,9 +151,7 @@ export const deleteItem = async (id: string) => {
 // Importação por foto: a API guarda a foto, chama o OCR e devolve os itens para revisão
 export type PickedImage = { uri: string; name: string; type: string };
 
-export const uploadMenuPhoto = async (restaurantId: string, image: PickedImage) => {
-  const form = new FormData();
-  form.append('restaurantId', restaurantId);
+const appendFile = async (form: FormData, image: PickedImage) => {
   if (Platform.OS === 'web') {
     // no navegador o seletor devolve uma URL blob/data; o multipart precisa do arquivo
     const blob = await (await fetch(image.uri)).blob();
@@ -158,11 +159,29 @@ export const uploadMenuPhoto = async (restaurantId: string, image: PickedImage) 
   } else {
     form.append('file', image as unknown as Blob);
   }
+};
+
+export const uploadMenuPhoto = async (restaurantId: string, image: PickedImage) => {
+  const form = new FormData();
+  form.append('restaurantId', restaurantId);
+  await appendFile(form, image);
   const { data } = await api.post<OcrUploadResult>('/uploads/ocr', form, {
     timeout: 1000 * 90,
   });
   return data;
 };
+
+// Foto de prato, logo ou capa: devolve a URL para salvar no item ou no restaurante
+export const uploadImage = async (image: PickedImage) => {
+  const form = new FormData();
+  await appendFile(form, image);
+  const { data } = await api.post<{ url: string }>('/uploads/image', form, { timeout: 1000 * 60 });
+  return data.url;
+};
+
+// Fotos enviadas chegam como /static/…; as de fora já vêm com https://
+export const imageSrc = (url?: string | null) =>
+  !url ? undefined : url.startsWith('/') ? `${API_BASE}${url}` : url;
 
 export const importItems = async (menuId: string, uploadId: string, items: OcrItem[]) => {
   const { data } = await api.post<{ created: number; menu: Menu }>(`/menus/${menuId}/import`, {

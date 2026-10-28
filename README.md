@@ -19,11 +19,11 @@ Painel do restaurante do LocalMenu, em React Native (Expo) e TypeScript. O dono 
 
 1. Entra com a conta de dono.
 2. **Painel:** pedidos em aberto, vendas das últimas 24 h e os pedidos que pedem ação agora.
-3. **Cardápio:** categorias e itens, com preço, descrição e disponibilidade.
+3. **Cardápio:** categorias e itens, com foto, preço, descrição e disponibilidade. A foto sobe na hora (JPEG ou PNG, até 5 MB) e aparece no app do cliente.
 4. **Importar por foto:** fotografa o cardápio de papel; a API manda a foto para o OCR, o dono revisa nome, preço e categoria de cada item e adiciona tudo de uma vez.
 5. **Pedidos:** aceita ou recusa, começa o preparo, marca como pronto e como entregue. A lista atualiza sozinha a cada 10 segundos.
 6. **Vendas:** faturamento, ticket médio e itens mais vendidos por período.
-7. **Meu restaurante:** nome, descrição, telefone e endereço que o cliente vê.
+7. **Meu restaurante:** capa, logo, nome, descrição, telefone e endereço que o cliente vê. Capa e logo salvam assim que a foto sobe.
 
 ## Stack
 
