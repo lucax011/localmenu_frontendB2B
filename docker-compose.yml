@@ -1,9 +1,10 @@
-version: '3.9'
+# Versão de produção do painel (build estático servido pelo Nginx).
+# A porta fica presa a 127.0.0.1 e é a mesma do dev (8081), que o CORS da API já libera.
 services:
   web:
-    build: .
+    build:
+      context: .
+      args:
+        EXPO_PUBLIC_API_BASE_URL: ${EXPO_PUBLIC_API_BASE_URL:-http://localhost:3000}
     ports:
-      - '8080:80'
-    environment:
-      - EXPO_PUBLIC_API_BASE_URL=${EXPO_PUBLIC_API_BASE_URL}
-      - EXPO_PUBLIC_OCR_URL=${EXPO_PUBLIC_OCR_URL}
+      - '127.0.0.1:8081:80'

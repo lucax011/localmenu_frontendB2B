@@ -4,11 +4,11 @@
   "private": true,
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
+    "start": "node -r ./scripts/somente-localhost.cjs node_modules/expo/bin/cli start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web",
-    "dev:web": "expo start --web",
+    "web": "node -r ./scripts/somente-localhost.cjs node_modules/expo/bin/cli start --web --port 8081",
+    "dev:web": "node -r ./scripts/somente-localhost.cjs node_modules/expo/bin/cli start --web --port 8081",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -18,7 +18,7 @@
     "e2e:open": "cypress open",
     "precommit": "lint-staged",
     "build:web": "expo export --platform web",
-    "ci:start-web": "expo start --web --non-interactive",
+    "ci:start-web": "node -r ./scripts/somente-localhost.cjs node_modules/expo/bin/cli start --web --port 8081 --non-interactive",
     "postinstall": "husky install"
   },
   "lint-staged": {

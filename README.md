@@ -1,94 +1,94 @@
-# LocalMenu B2B (Expo + TypeScript)
+# LocalMenu B2B
+
+Painel do restaurante do LocalMenu, em React Native (Expo) e TypeScript. O dono monta o cardápio (à mão ou fotografando o cardápio de papel), recebe os pedidos dos clientes, avança cada um até a retirada e acompanha as vendas. Roda 100% local, ligado ao [localmenu_backend](https://github.com/lucax011/localmenu_backend).
+
+| Painel                              | Pedidos                               | Importar por foto                                                       |
+| ----------------------------------- | ------------------------------------- | ----------------------------------------------------------------------- |
+| ![Painel](docs/capturas/painel.png) | ![Pedidos](docs/capturas/pedidos.png) | ![Revisão dos itens lidos da foto](docs/capturas/importar-por-foto.png) |
 
 ## Ecossistema LocalMenu
 
-| Repositório | Papel |
-| --- | --- |
-| [localmenu_backend](https://github.com/lucax011/localmenu_backend) | API NestJS + PostgreSQL |
-| [localmenu_frontendB2C](https://github.com/lucax011/localmenu_frontendB2C) | App do cliente (Expo) |
-| [localmenu_frontendB2B](https://github.com/lucax011/localmenu_frontendB2B) | App do restaurante (Expo) |
-| [localmenu_OCRservice](https://github.com/lucax011/localmenu_OCRservice) | Microsserviço de OCR em Python (FastAPI) |
+| Repositório                                                                | Papel                                    |
+| -------------------------------------------------------------------------- | ---------------------------------------- |
+| [localmenu_backend](https://github.com/lucax011/localmenu_backend)         | API NestJS + PostgreSQL                  |
+| [localmenu_frontendB2C](https://github.com/lucax011/localmenu_frontendB2C) | App do cliente (Expo)                    |
+| [localmenu_frontendB2B](https://github.com/lucax011/localmenu_frontendB2B) | App do restaurante (Expo)                |
+| [localmenu_OCRservice](https://github.com/lucax011/localmenu_OCRservice)   | Microsserviço de OCR em Python (FastAPI) |
 
+## O que o dono faz
 
-## Objetivo
-
-- Base funcional para comerciantes (B2B) com: login, dashboard, gestão do negócio, CRUD de produtos, fluxo OCR (upload, extração, revisão e publicação), pedidos e relatórios.
+1. Entra com a conta de dono.
+2. **Painel:** pedidos em aberto, vendas das últimas 24 h e os pedidos que pedem ação agora.
+3. **Cardápio:** categorias e itens, com preço, descrição e disponibilidade.
+4. **Importar por foto:** fotografa o cardápio de papel; a API manda a foto para o OCR, o dono revisa nome, preço e categoria de cada item e adiciona tudo de uma vez.
+5. **Pedidos:** aceita ou recusa, começa o preparo, marca como pronto e como entregue. A lista atualiza sozinha a cada 10 segundos.
+6. **Vendas:** faturamento, ticket médio e itens mais vendidos por período.
+7. **Meu restaurante:** nome, descrição, telefone e endereço que o cliente vê.
 
 ## Stack
 
-- Expo + TypeScript, React Navigation, Zustand, React Query, Axios, React Native Paper, react-hook-form + zod.
-- Testes: Jest + Testing Library; Cypress E2E em Expo Web.
-- Qualidade: ESLint/Prettier/Husky.
-- Infra local: Docker (web), Jenkinsfile (CI).
+- Expo SDK 51 (React Native 0.74, web pelo Metro)
+- React Navigation, React Query, Zustand (sessão guardada no aparelho)
+- React Native Paper, react-hook-form + zod, expo-image-picker
+- Jest, Cypress (e2e contra a API local), ESLint, Prettier, Husky + lint-staged
 
-## Configuração
+## Como rodar
 
-- Copie .env.example para .env e ajuste se necessário:
-  - EXPO_PUBLIC_API_BASE_URL=http://localhost:3000
-  - EXPO_PUBLIC_OCR_URL=http://localhost:8000
+Pré-requisito: a API rodando em `http://localhost:3000`. O README do [localmenu_backend](https://github.com/lucax011/localmenu_backend#subir-tudo-api-ocr-e-os-dois-apps) tem o passo a passo para subir tudo.
+
+```sh
+npm install
+npm run web        # abre em http://localhost:8081
+```
+
+Conta de exemplo: `dono@localmenu.dev` / `localmenu123` (dono do Brasa Burger).
+
+O servidor de desenvolvimento fica preso a `127.0.0.1`: o `scripts/somente-localhost.cjs` impede que o Expo abra a porta para a rede. Para testar num celular pelo Expo Go, rode `npx expo start` direto, sabendo que a porta fica visível na rede local.
+
+Para apontar para outra API, copie `.env.example` para `.env` e ajuste `EXPO_PUBLIC_API_BASE_URL`.
+
+### Versão de produção (Docker)
+
+```sh
+docker compose up --build    # http://localhost:8081, só em 127.0.0.1
+```
+
+Gera o site estático e serve pelo Nginx. A URL da API entra no build (`EXPO_PUBLIC_API_BASE_URL`). Use a mesma porta 8081 do desenvolvimento, que é a que o CORS da API libera; pare o `npm run web` antes.
 
 ## Scripts
 
-- npm start: inicia o Expo (dev)
-- npm run web: Expo Web
-- npm run build:web: exporta bundle web para dist/
-- npm test: unit tests (Jest)
-- npm run e2e: Cypress (necessita Expo Web rodando)
+| Comando             | O que faz                                                                |
+| ------------------- | ------------------------------------------------------------------------ |
+| `npm run web`       | Expo Web na porta 8081, só em 127.0.0.1                                  |
+| `npm test`          | Testes unitários (preços, pedidos, validação)                            |
+| `npm run e2e`       | Cypress contra a API local: importação por foto e pedido indo até pronto |
+| `npm run typecheck` | Checagem de tipos                                                        |
+| `npm run lint`      | ESLint + Prettier                                                        |
+| `npm run build:web` | Gera o site estático em `dist/`                                          |
 
-## Endpoints esperados
+O e2e precisa da API e do app rodando. Ele cria seus próprios dados (um cliente e um pedido novos) e apaga os itens que importa.
 
-- Backend (NestJS):
-  - POST /auth/login
-  - GET/PUT /businesses/me
-  - CRUD /products
-  - GET /orders?business_id=:id; PUT /orders/:id/status
-  - POST /reports/generate
-- OCR (FastAPI):
-  - POST /ocr/extract (multipart: file) -> { items: [{ name, price, description, confidence, bbox? }] }
+## Estrutura
 
-## Arquitetura
+```
+App.tsx                 navegação
+src/
+  api/                  cliente da API (token com renovação automática) e tipos
+  store/                sessão
+  hooks/                restaurante e cardápio do dono
+  features/
+    auth/               login
+    dashboard/          painel
+    menu/               cardápio e formulário de item
+    ocr/                importar por foto e revisar itens
+    orders/             pedidos
+    reports/            vendas
+    restaurant/         dados do restaurante
+  components/ui.tsx     peças visuais comuns
+  utils/                formatos e validação
+cypress/e2e/            testes ponta a ponta
+```
 
-- src/
-  - api/: Axios clients (backend, ocr)
-  - features/: auth, dashboard, business, products, ocr, orders, reports
-  - store/: Zustand (auth)
-  - utils/: validators (zod)
+## Licença
 
-Fluxo OCR
-
-1. Tela Importar Cardápio: seleciona imagem/pdf (expo-image-picker no mobile; input file no web).
-2. Envia multipart para http://localhost:8000/ocr/extract.
-3. Pré-visualiza itens (nome, preço, descrição, confiança).
-4. Edição inline (zod valida), confirmar e publicar: cria produtos no backend.
-
-Payloads exemplo
-
-- OCR resposta:
-  {
-  "items": [
-  { "name": "Pizza", "price": 29.9, "description": "Calabresa", "confidence": 0.9 }
-  ]
-  }
-- Criação de produto:
-  { "name": "Pizza", "price": 29.9, "description": "Calabresa", "businessId": "<id>", "image": { uri, name, type } }
-
-Testes
-
-- Unit: src/**tests**/ocr-parse.test.ts
-- E2E: cypress/e2e/ocr-flow.cy.ts (usa intercepts para simular login, OCR e publicação)
-
-Docker (web)
-
-- docker-compose up --build
-- Acessar http://localhost:8080
-
-Jenkins
-
-- Jenkinsfile com stages: install, lint, test, build web, docker build.
-
-Troubleshooting
-
-- OCR lento: serviço local pode demorar até 60s. Verifique timeout e logs do microserviço (porta 8000).
-- Expo Web porta: por padrão 8081 em dev; ajuste baseUrl do Cypress se necessário.
-
-# localmenu_frontendB2B
+MIT. Veja [LICENSE](LICENSE).
