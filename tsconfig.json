@@ -13,14 +13,10 @@
     "types": ["jest", "react", "react-native"],
     "baseUrl": ".",
     "paths": {
-      "@/": ["src/*"],
-      "@/api/*": ["src/api/*"],
-      "@/features/*": ["src/features/*"],
-      "@/navigation/*": ["src/navigation/*"],
-      "@/store/*": ["src/store/*"],
-      "@/utils/*": ["src/utils/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src", "App.tsx", "jest.setup.ts"],
-  "exclude": ["cypress"]
+  "exclude": ["cypress"],
+  "extends": "expo/tsconfig.base"
 }
